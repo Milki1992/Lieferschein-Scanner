@@ -1,357 +1,306 @@
-<!DOCTYPE html>
+
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Stryker Lieferschein Scanner</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lieferschein Scanner</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      padding: 1rem;
+      max-width: 500px;
+      margin: auto;
+      color: #333;
+    }
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+    }
 
-<style>
-:root{
-  --yellow:#ffd60a;
-  --yellow-dark:#e6c200;
-  --green:#30d158;
-  --red:#ff453a;
-  --orange:#ff9f0a;
-  --bg:#0b0b0c;
-  --panel2:#1c1c1e;
-  --text:#f2f2f2;
-  --muted:#9a9a9a;
-}
+    button, input {
+      margin: 0.4rem 0;
+      padding: 0.8rem;
+      width: 100%;
+      font-size: 1rem;
+      border: none;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: background-color 0.2s ease;
+    }
 
-*{box-sizing:border-box}
-html,body{margin:0;height:100%}
+    input {
+      border: 1px solid #ccc;
+    }
 
-body{
-  font-family:Inter,system-ui,Arial;
-  background:var(--bg);
-  color:var(--text);
-  max-width:520px;
-  margin:auto;
-  display:flex;
-  flex-direction:column;
-}
+    button {
+      background-color: #3498db;
+      color: white;
+      cursor: pointer;
+    }
 
-/* HEADER */
-header{
-  background:linear-gradient(180deg,var(--yellow),var(--yellow-dark));
-  padding:.7rem .8rem .6rem;
-  border-bottom:4px solid #000;
-}
-header h1{
-  margin:0;
-  text-align:center;
-  font-size:1.2rem;
-  font-weight:800;
-  letter-spacing:.1em;
-  color:#000;
-}
-header .sub{
-  text-align:center;
-  font-size:.75rem;
-  font-weight:700;
-  letter-spacing:.08em;
-  color:#000;
-  margin-top:.15rem;
-}
-header input{
-  margin-top:.45rem;
-  width:100%;
-  padding:.6rem;
-  border-radius:8px;
-  border:2px solid #000;
-  background:#fff3b0;
-  color:#000;
-  font-weight:700;
-}
+    button:hover {
+      background-color: #2980b9;
+    }
 
-/* CAMERA */
-#videoContainer{
-  flex:1;
-  margin:.45rem;
-  border-radius:14px;
-  overflow:hidden;
-  background:#000;
-  position:relative;
-}
-video{width:100%;height:100%;object-fit:cover}
-#scannerFrame{
-  position:absolute;
-  top:32%;
-  left:15%;
-  width:70%;
-  height:25%;
-  border:3px solid var(--yellow);
-  box-shadow:0 0 16px rgba(255,214,10,.9);
-}
+    #stopBtn { background-color: #c0392b; }
+    #stopBtn:hover { background-color: #a93226; }
 
-/* FLASH */
-#flash{
-  position:fixed;
-  inset:0;
-  background:#fff;
-  opacity:0;
-  pointer-events:none;
-  transition:.12s;
-}
+    #shareBtn { background-color: #27ae60; }
+    #shareBtn:hover { background-color: #1e8449; }
 
-/* FOOTER */
-footer{
-  padding:.55rem;
-  background:linear-gradient(180deg,#101012,#0b0b0c);
-  border-top:1px solid #1f1f1f;
-}
-.action-row{display:flex;gap:.45rem}
-.action-row button{
-  flex:1;
-  padding:.8rem;
-  border:none;
-  border-radius:14px;
-  font-weight:800;
-  letter-spacing:.05em;
-  color:#111;
-}
-.btn-start{background:linear-gradient(180deg,var(--green),#1fa34a)}
-.btn-stop{background:linear-gradient(180deg,var(--red),#c9251c)}
-.btn-torch{background:linear-gradient(180deg,var(--orange),#cc7f05)}
+    #copyBtn { background-color: #f39c12; }
+    #copyBtn:hover { background-color: #d68910; }
 
-.share-row{margin-top:.45rem}
-.share-row button{
-  width:100%;
-  padding:.8rem;
-  border-radius:14px;
-  font-weight:900;
-  letter-spacing:.06em;
-  background:linear-gradient(180deg,var(--yellow),var(--yellow-dark));
-  color:#000;
-  border:3px solid #000;
-}
+    #undoBtn { background-color: #e67e22; }
+    #undoBtn:hover { background-color: #ca6f1e; }
 
-.secondary{
-  margin-top:.45rem;
-  display:flex;
-  gap:.45rem;
-}
-.secondary button{
-  flex:1;
-  padding:.55rem;
-  font-size:.75rem;
-  background:var(--panel2);
-  color:var(--muted);
-  border:1px solid #2a2a2a;
-  border-radius:10px;
-}
+    #clearBtn { background-color: #95a5a6; }
+    #clearBtn:hover { background-color: #7f8c8d; }
 
-/* LIST */
-ul{
-  list-style:none;
-  padding:0;
-  margin:0;
-  background:#0f0f0f;
-  max-height:120px;
-  overflow-y:auto;
-}
-li{padding:.5rem .7rem;border-bottom:1px solid #1a1a1a}
+    #videoContainer {
+      position: relative;
+      border: 2px solid #ccc;
+      border-radius: 6px;
+      overflow: hidden;
+      margin: 1rem 0;
+      background-color: #000;
+    }
 
-/* NOTIFICATION */
-#notification{
-  text-align:center;
-  font-size:.8rem;
-  font-weight:700;
-  color:var(--yellow);
-  min-height:1rem;
-}
-</style>
+    video {
+      width: 100%;
+    }
+
+    #scannerFrame {
+      position: absolute;
+      top: 25%;
+      left: 25%;
+      width: 50%;
+      height: 30%;
+      border: 2px dashed red;
+      pointer-events: none;
+    }
+
+    #flash {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: white;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    #notification {
+      text-align: center;
+      color: red;
+      min-height: 1.2rem;
+      margin-top: 0.5rem;
+    }
+
+    ul {
+      list-style: disc;
+      background: white;
+      padding-left: 1.2rem;
+      max-height: 200px;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      margin-top: 0.5rem;
+    }
+
+    li {
+      padding: 0.3rem 0.5rem;
+      border-bottom: 1px solid #eee;
+    }
+  </style>
 </head>
-
 <body>
 
-<header>
-  <h1>STRYKER LIEFERSCHEIN</h1>
-  <div class="sub">SCAN · ERFASSEN · SENDEN</div>
-  <input id="vanInput" placeholder="VAN-NUMMER (z. B. 43)">
-</header>
+<h1>Lieferschein Scanner</h1>
+
+<button id="startBtn">📷 Scanner starten</button>
+<button id="stopBtn" disabled>⛔ Scanner stoppen</button>
+<button id="shareBtn">📤 Teilen</button>
+<button id="copyBtn">📋 In Zwischenablage kopieren</button>
+<button id="undoBtn">↩️ Letzten Scan löschen</button>
+<button id="clearBtn">🗑️ Alle Scans löschen</button>
+
+<div id="notification"></div>
 
 <div id="videoContainer">
   <video id="video" autoplay muted playsinline></video>
   <div id="scannerFrame"></div>
 </div>
 
-<div id="notification"></div>
-
-<footer>
-  <div class="action-row">
-    <button id="startBtn" class="btn-start">START</button>
-    <button id="stopBtn" class="btn-stop" disabled>STOPP</button>
-    <button id="torchBtn" class="btn-torch">LICHT</button>
-  </div>
-
-  <div class="share-row">
-    <button id="shareBtn">E-MAIL SENDEN</button>
-  </div>
-
-  <div class="secondary">
-    <button id="copyBtn">KOPIEREN</button>
-    <button id="undoBtn">RÜCKGÄNGIG</button>
-    <button id="clearBtn">ALLES LÖSCHEN</button>
-  </div>
-</footer>
-
 <div id="flash"></div>
+
+<h2>Gespeicherte Barcodes:</h2>
 <ul id="barcodeList"></ul>
 
+<!-- ZXing Barcode Library -->
 <script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.18.6/umd/index.min.js"></script>
 <script>
-const video=document.getElementById('video');
-const list=document.getElementById('barcodeList');
-const note=document.getElementById('notification');
-const flash=document.getElementById('flash');
+  const startBtn = document.getElementById('startBtn');
+  const stopBtn = document.getElementById('stopBtn');
+  const shareBtn = document.getElementById('shareBtn');
+  const copyBtn = document.getElementById('copyBtn');
+  const undoBtn = document.getElementById('undoBtn');
+  const clearBtn = document.getElementById('clearBtn');
+  const video = document.getElementById('video');
+  const barcodeListEl = document.getElementById('barcodeList');
+  const notification = document.getElementById('notification');
+  const flash = document.getElementById('flash');
 
-const startBtn=document.getElementById('startBtn');
-const stopBtn=document.getElementById('stopBtn');
-const torchBtn=document.getElementById('torchBtn');
-const shareBtn=document.getElementById('shareBtn');
-const copyBtn=document.getElementById('copyBtn');
-const undoBtn=document.getElementById('undoBtn');
-const clearBtn=document.getElementById('clearBtn');
-const vanInput=document.getElementById('vanInput');
+  let barcodes = [];
+  let codeReader = null;
+  let scanning = false;
+  let selectedDeviceId = null;
 
-let barcodes=[];
-let reader=null;
-let deviceId=null;
-let scanning=false;
-let torchOn=false;
-let lastScan=0;
-const COOLDOWN=1200;
+  const beep = () => {
+    const ctx = new AudioContext();
+    const osc = ctx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.value = 1000;
+    osc.connect(ctx.destination);
+    osc.start();
+    setTimeout(() => {
+      osc.stop();
+      ctx.close();
+    }, 150);
+  };
 
-/* VAN speichern */
-vanInput.value=localStorage.getItem('van')||'';
-vanInput.oninput=()=>localStorage.setItem('van',vanInput.value);
+  const vibrate = () => {
+    if (navigator.vibrate) navigator.vibrate(150);
+  };
 
-/* Feedback */
-function beep(){
-  const c=new AudioContext();
-  const o=c.createOscillator();
-  o.frequency.value=1000;
-  o.connect(c.destination);
-  o.start();
-  setTimeout(()=>{o.stop();c.close()},120);
-}
-function flashFX(){
-  flash.style.opacity=1;
-  setTimeout(()=>flash.style.opacity=0,80);
-}
-function notify(t){
-  note.textContent=t;
-  setTimeout(()=>{if(note.textContent===t)note.textContent=''},2000);
-}
-function render(){
-  list.innerHTML='';
-  barcodes.forEach(b=>{
-    const li=document.createElement('li');
-    li.textContent=b;
-    list.appendChild(li);
+  const flashScreen = () => {
+    flash.style.opacity = 1;
+    setTimeout(() => {
+      flash.style.opacity = 0;
+    }, 100);
+  };
+
+  const showNotification = msg => {
+    notification.textContent = msg;
+    setTimeout(() => {
+      if (notification.textContent === msg) notification.textContent = '';
+    }, 3000);
+  };
+
+  const renderList = () => {
+    barcodeListEl.innerHTML = '';
+    barcodes.forEach(code => {
+      const li = document.createElement('li');
+      li.textContent = code;
+      barcodeListEl.appendChild(li);
+    });
+  };
+
+  const startScanner = async () => {
+    if (scanning) return;
+
+    codeReader = new ZXing.BrowserBarcodeReader();
+
+    const devices = await codeReader.listVideoInputDevices();
+    const backCamera = devices.find(d => d.label.toLowerCase().includes('back')) || devices[0];
+    selectedDeviceId = backCamera.deviceId;
+
+    const constraints = {
+      video: {
+        deviceId: { exact: selectedDeviceId },
+        facingMode: 'environment',
+        focusMode: 'continuous'
+      }
+    };
+
+    try {
+      scanning = true;
+      startBtn.disabled = true;
+      stopBtn.disabled = false;
+
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      video.srcObject = stream;
+
+      await codeReader.decodeFromVideoDevice(selectedDeviceId, video, (result, err) => {
+        if (result) {
+          const code = result.text.trim();
+          if (!barcodes.includes(code)) {
+            barcodes.push(code);
+            renderList();
+            beep();
+            vibrate();
+            flashScreen();
+            showNotification('Barcode gespeichert: ' + code);
+          } else {
+            showNotification('Bereits gescannt!');
+          }
+        }
+        if (err && !(err instanceof ZXing.NotFoundException)) {
+          console.error(err);
+        }
+      });
+
+    } catch (err) {
+      scanning = false;
+      startBtn.disabled = false;
+      stopBtn.disabled = true;
+      showNotification('Fehler: ' + err.message);
+    }
+  };
+
+  startBtn.addEventListener('click', startScanner);
+
+  stopBtn.addEventListener('click', () => {
+    if (!scanning) return;
+    codeReader.reset();
+    const tracks = video.srcObject?.getTracks();
+    if (tracks) tracks.forEach(track => track.stop());
+    video.srcObject = null;
+    scanning = false;
+    startBtn.disabled = false;
+    stopBtn.disabled = true;
+    showNotification('Scanner gestoppt.');
   });
-}
 
-/* Kamera */
-async function getBackCameraId(){
-  if(deviceId) return deviceId;
-  const devs=await navigator.mediaDevices.enumerateDevices();
-  const cams=devs.filter(d=>d.kind==='videoinput');
-  const back=cams.find(c=>/back|rear/i.test(c.label))||cams[cams.length-1];
-  deviceId=back.deviceId;
-  return deviceId;
-}
-
-/* START */
-async function startScanner(){
-  if(scanning) return;
-  reader=new ZXing.BrowserBarcodeReader();
-  const camId=await getBackCameraId();
-
-  scanning=true;
-  startBtn.disabled=true;
-  stopBtn.disabled=false;
-
-  reader.decodeFromVideoDevice(camId,video,(res)=>{
-    if(!res) return;
-
-    const now=Date.now();
-    if(now-lastScan<COOLDOWN) return;
-    lastScan=now;
-
-    const raw=res.text.trim();
-
-    /* NUR echte Lieferscheine: exakt 10 Ziffern */
-    if(!/^\d{10}$/.test(raw)) return;
-    if(barcodes.includes(raw)) return notify('Bereits gescannt');
-
-    barcodes.push(raw);
-    render();
-    beep();
-    flashFX();
-    notify('GESPEICHERT');
+  shareBtn.addEventListener('click', () => {
+    if (barcodes.length === 0) return showNotification('Keine Barcodes zum Teilen.');
+    const text = barcodes.join('\n');
+    if (navigator.share) {
+      navigator.share({ title: 'Barcodes', text })
+        .then(() => showNotification('Geteilt.'))
+        .catch(() => showNotification('Teilen abgebrochen.'));
+    } else {
+      showNotification('Teilen wird nicht unterstützt.');
+    }
   });
-}
 
-/* STOP */
-function stopScanner(){
-  if(!scanning) return;
-  reader.reset();
-  video.srcObject?.getTracks().forEach(t=>t.stop());
-  video.srcObject=null;
-  reader=null;
-  scanning=false;
-  startBtn.disabled=false;
-  stopBtn.disabled=true;
-  notify('SCANNER GESTOPPT');
-}
+  copyBtn.addEventListener('click', async () => {
+    if (barcodes.length === 0) return showNotification('Keine Barcodes.');
+    try {
+      await navigator.clipboard.writeText(barcodes.join('\n'));
+      showNotification('Kopiert!');
+    } catch (e) {
+      showNotification('Fehler beim Kopieren.');
+    }
+  });
 
-/* LICHT */
-torchBtn.onclick=async()=>{
-  if(!video.srcObject) return notify('SCANNER STARTEN');
-  const track=video.srcObject.getVideoTracks()[0];
-  const caps=track.getCapabilities();
-  if(!caps.torch) return notify('LICHT NICHT VERFÜGBAR');
-  torchOn=!torchOn;
-  await track.applyConstraints({advanced:[{torch:torchOn}]});
-  torchBtn.textContent=torchOn?'LICHT AUS':'LICHT';
-};
+  undoBtn.addEventListener('click', () => {
+    if (barcodes.length > 0) {
+      barcodes.pop();
+      renderList();
+      showNotification('Letzter Scan gelöscht.');
+    }
+  });
 
-/* MAIL */
-shareBtn.onclick=()=>{
-  if(!barcodes.length) return notify('KEINE SCANS');
-  const van=vanInput.value||'—';
-  const lines=barcodes.map(b=>`• ${b}`).join('\n');
+  clearBtn.addEventListener('click', () => {
+    barcodes = [];
+    renderList();
+    showNotification('Alle gelöscht.');
+  });
 
-  const body=
-`Hallo zusammen,
-
-könnt ihr bitte die folgenden Lieferscheine für meinen VAN ${van} einbuchen:
-
-${lines}
-
-Vielen Dank,
-liebe Grüße`;
-
-  const subject=`Lieferscheine – VAN ${van}`;
-
-  window.location.href=
-`mailto:procareservicegsa@stryker.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-};
-
-copyBtn.onclick=async()=>{
-  await navigator.clipboard.writeText(barcodes.join('\n'));
-  notify('KOPIERT');
-};
-undoBtn.onclick=()=>{barcodes.pop();render()};
-clearBtn.onclick=()=>{barcodes=[];render()};
-
-startBtn.onclick=startScanner;
-stopBtn.onclick=stopScanner;
+  renderList();
 </script>
-
 </body>
 </html>
