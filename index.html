@@ -283,9 +283,7 @@ async function startScanner(){
     lastScan=now;
 
     const raw=res.text.trim();
-
-    /* NUR echte Lieferscheine: exakt 10 Ziffern */
-    if(!/^\d{10}$/.test(raw)) return;
+    if(!/^\d{10}$/.test(raw)) return;   // nur 10-stellige Zahlen
     if(barcodes.includes(raw)) return notify('Bereits gescannt');
 
     barcodes.push(raw);
@@ -320,12 +318,13 @@ torchBtn.onclick=async()=>{
   torchBtn.textContent=torchOn?'LICHT AUS':'LICHT';
 };
 
-/* MAIL */
+/* 📧 OUTLOOK-APP ÖFFNEN */
 shareBtn.onclick=()=>{
   if(!barcodes.length) return notify('KEINE SCANS');
   const van=vanInput.value||'—';
   const lines=barcodes.map(b=>`• ${b}`).join('\n');
 
+  const subject=`Lieferscheine – VAN ${van}`;
   const body=
 `Hallo zusammen,
 
@@ -336,12 +335,18 @@ ${lines}
 Vielen Dank,
 liebe Grüße`;
 
-  const subject=`Lieferscheine – VAN ${van}`;
+  const outlookUrl =
+`ms-outlook://compose?to=procareservicegsa@stryker.com&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
-  window.location.href=
+  const fallbackMailto =
 `mailto:procareservicegsa@stryker.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+  // erst Outlook versuchen, dann Fallback
+  window.location.href = outlookUrl;
+  setTimeout(()=>{ window.location.href = fallbackMailto; }, 600);
 };
 
+/* COPY */
 copyBtn.onclick=async()=>{
   await navigator.clipboard.writeText(barcodes.join('\n'));
   notify('KOPIERT');
