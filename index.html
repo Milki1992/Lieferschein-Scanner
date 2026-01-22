@@ -19,7 +19,6 @@
   --text:#f2f2f2;
   --muted:#9a9a9a;
 }
-
 *{box-sizing:border-box}
 html,body{margin:0;height:100%}
 
@@ -283,7 +282,7 @@ async function startScanner(){
     lastScan=now;
 
     const raw=res.text.trim();
-    if(!/^\d{10}$/.test(raw)) return;   // nur 10-stellige Zahlen
+    if(!/^\d{10}$/.test(raw)) return;     // nur 10-stellige Zahlen
     if(barcodes.includes(raw)) return notify('Bereits gescannt');
 
     barcodes.push(raw);
@@ -318,7 +317,7 @@ torchBtn.onclick=async()=>{
   torchBtn.textContent=torchOn?'LICHT AUS':'LICHT';
 };
 
-/* 📧 OUTLOOK-APP ÖFFNEN */
+/* 📧 OUTLOOK-ONLY */
 shareBtn.onclick=()=>{
   if(!barcodes.length) return notify('KEINE SCANS');
   const van=vanInput.value||'—';
@@ -335,15 +334,10 @@ ${lines}
 Vielen Dank,
 liebe Grüße`;
 
-  const outlookUrl =
+  const outlookUrl=
 `ms-outlook://compose?to=procareservicegsa@stryker.com&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
-  const fallbackMailto =
-`mailto:procareservicegsa@stryker.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-
-  // erst Outlook versuchen, dann Fallback
-  window.location.href = outlookUrl;
-  setTimeout(()=>{ window.location.href = fallbackMailto; }, 600);
+  window.location.href = outlookUrl; // NUR Outlook
 };
 
 /* COPY */
