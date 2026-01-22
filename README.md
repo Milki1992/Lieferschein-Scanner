@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="de">
 <head>
 <meta charset="UTF-8">
@@ -323,7 +324,7 @@ torchBtn.onclick=async()=>{
 shareBtn.onclick=()=>{
   if(!barcodes.length) return notify('KEINE SCANS');
   const van=vanInput.value||'—';
-  const lines=barcodes.map(b=>• ${b}).join('\n');
+  const lines=barcodes.map(b=>`• ${b}`).join('\n');
 
   const body=
 `Hallo zusammen,
@@ -335,10 +336,10 @@ ${lines}
 Vielen Dank,
 liebe Grüße`;
 
-  const subject=Lieferscheine – VAN ${van};
+  const subject=`Lieferscheine – VAN ${van}`;
 
   window.location.href=
-mailto:procareservicegsa@stryker.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)};
+`mailto:procareservicegsa@stryker.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 };
 
 copyBtn.onclick=async()=>{
